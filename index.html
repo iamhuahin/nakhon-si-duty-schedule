@@ -572,37 +572,34 @@ function render() {
 }
 
 function fitTableText() {
-  const targets = document.querySelectorAll('#tbody td:not(.empty), #tbody .mission, #tbody .attire');
+  // ภารกิจและการแต่งกายใช้ขนาดตัวอักษรที่อ่านง่าย และขึ้นบรรทัดตามความกว้างคอลัมน์
+  document.querySelectorAll('#tbody .mission').forEach(el => {
+    el.style.fontSize = '25px';
+    el.style.whiteSpace = 'pre-wrap';
+    el.style.overflow = 'visible';
+  });
+  document.querySelectorAll('#tbody .attire').forEach(el => {
+    el.style.fontSize = '22px';
+    el.style.whiteSpace = 'pre-wrap';
+    el.style.overflow = 'visible';
+  });
+
+  // ปรับขนาดอัตโนมัติเฉพาะช่องข้อมูลสั้น เพื่อช่วยให้พอดีกับคอลัมน์
+  const targets = document.querySelectorAll('#tbody td:not(.empty):not(.mission-cell):not(.time)');
   targets.forEach(el => {
     el.style.fontSize = '';
-    const base = parseFloat(getComputedStyle(el).fontSize) || 20;
-    const min = el.classList.contains('time') ? 12 : 13;
-    const originalWhiteSpace = el.style.whiteSpace;
-    const originalOverflow = el.style.overflow;
-
-    // ลดขนาดฟอนต์ก่อน โดยวัดความยาวข้อความในบรรทัดเดียว
     el.style.whiteSpace = 'nowrap';
+    el.style.overflow = 'visible';
+    const base = parseFloat(getComputedStyle(el).fontSize) || 20;
+    const min = 13;
     let size = base;
     while (size > min && el.scrollWidth > el.clientWidth + 1) {
       size -= 1;
       el.style.fontSize = size + 'px';
     }
-
-    // คืนการขึ้นบรรทัด: ภารกิจ/แต่งกายรักษา Enter, ช่องทั่วไปให้ตัดบรรทัดได้
-    if (el.classList.contains('mission') || el.classList.contains('attire')) {
-      el.style.whiteSpace = 'pre-wrap';
-      el.style.overflow = 'visible';
-    } else if (el.classList.contains('operators')) {
-      el.style.whiteSpace = 'pre-line';
-      el.style.overflow = 'visible';
-    } else if (el.classList.contains('time')) {
-      el.style.whiteSpace = 'nowrap';
-      el.style.overflow = 'visible';
-    } else {
-      el.style.whiteSpace = 'normal';
-      el.style.overflow = 'visible';
-      el.style.overflowWrap = 'anywhere';
-    }
+    // ถ้ายังยาว ให้ข้อความขึ้นบรรทัดใหม่และเพิ่มความสูงของแถว
+    el.style.whiteSpace = el.classList.contains('operators') ? 'pre-line' : 'normal';
+    el.style.overflowWrap = 'anywhere';
   });
 }
 
