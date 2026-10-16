@@ -574,19 +574,25 @@ function fitTableText() {
   targets.forEach(el => {
     el.style.fontSize = '';
     const originalWhiteSpace = getComputedStyle(el).whiteSpace;
-    el.style.whiteSpace = 'nowrap';
+    const originalOverflow = el.style.overflow;
+    const isTextBlock = el.classList.contains('mission') || el.classList.contains('attire') || el.classList.contains('operators');
     const base = parseFloat(getComputedStyle(el).fontSize) || 20;
     const min = el.classList.contains('time') ? 12 : 13;
+
+    // วัดขนาดแบบบรรทัดเดียวเพื่อหาขนาดฟอนต์ที่เหมาะสม
+    el.style.whiteSpace = 'nowrap';
     let size = base;
     while (size > min && el.scrollWidth > el.clientWidth + 1) {
       size -= 1;
       el.style.fontSize = size + 'px';
     }
-    if (el.scrollWidth > el.clientWidth + 1) {
-      el.style.whiteSpace = originalWhiteSpace === 'nowrap' ? 'normal' : originalWhiteSpace;
+
+    // คืนค่าการขึ้นบรรทัดเดิมเสมอ เพื่อรักษา Enter ที่ผู้ใช้พิมพ์ไว้
+    el.style.whiteSpace = originalWhiteSpace;
+    if (isTextBlock) {
       el.style.overflow = 'visible';
     } else {
-      el.style.whiteSpace = originalWhiteSpace;
+      el.style.overflow = originalOverflow;
     }
   });
 }
