@@ -115,7 +115,7 @@ input,textarea {
   font-size:46px;
   font-weight:800;
   line-height:1.2;
-  margin:0 0 8px;
+  margin:0 0 18px;
 }
 .date-line {
   color:white;
@@ -139,7 +139,8 @@ th,td {
   border:1px solid var(--border);
   padding:10px 12px;
   line-height:1.45;
-  overflow-wrap:anywhere;
+  white-space:nowrap;
+  overflow:hidden;
   font-weight:700;
   vertical-align:middle;
 }
@@ -183,7 +184,8 @@ td.mission-cell {
   font-size:25px;
   font-weight:800;
   text-align:left;
-  white-space:pre-wrap;
+  white-space:nowrap;
+  overflow:hidden;
   line-height:1.4;
 }
 .attire {
@@ -193,11 +195,13 @@ td.mission-cell {
   font-weight:800;
   text-align:left;
   text-decoration:underline;
-  white-space:pre-wrap;
+  white-space:nowrap;
+  overflow:hidden;
   line-height:1.4;
 }
 .operators {
-  white-space:pre-line;
+  white-space:nowrap;
+  overflow:hidden;
   text-align:center;
 }
 .empty {
@@ -562,6 +566,21 @@ function render() {
     cell(tr, x.unit || '-');
     cell(tr, x.operators || '-', 'operators');
     tbody.append(tr);
+  });
+  fitTableText();
+}
+
+function fitTableText() {
+  const targets = document.querySelectorAll('#tbody td:not(.empty), #tbody .mission, #tbody .attire');
+  targets.forEach(el => {
+    el.style.fontSize = '';
+    const base = parseFloat(getComputedStyle(el).fontSize) || 20;
+    const min = el.classList.contains('time') ? 12 : 13;
+    let size = base;
+    while (size > min && el.scrollWidth > el.clientWidth + 1) {
+      size -= 1;
+      el.style.fontSize = size + 'px';
+    }
   });
 }
 
