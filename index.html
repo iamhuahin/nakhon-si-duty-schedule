@@ -139,8 +139,7 @@ th,td {
   border:1px solid var(--border);
   padding:10px 12px;
   line-height:1.45;
-  white-space:nowrap;
-  overflow:hidden;
+  overflow-wrap:anywhere;
   font-weight:700;
   vertical-align:middle;
 }
@@ -184,8 +183,8 @@ td.mission-cell {
   font-size:25px;
   font-weight:800;
   text-align:left;
-  white-space:nowrap;
-  overflow:hidden;
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
   line-height:1.4;
 }
 .attire {
@@ -195,13 +194,13 @@ td.mission-cell {
   font-weight:800;
   text-align:left;
   text-decoration:underline;
-  white-space:nowrap;
-  overflow:hidden;
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
   line-height:1.4;
 }
-.operators {
-  white-space:nowrap;
-  overflow:hidden;
+ .operators {
+  white-space:pre-line;
+  overflow-wrap:anywhere;
   text-align:center;
 }
 .empty {
@@ -574,12 +573,20 @@ function fitTableText() {
   const targets = document.querySelectorAll('#tbody td:not(.empty), #tbody .mission, #tbody .attire');
   targets.forEach(el => {
     el.style.fontSize = '';
+    const originalWhiteSpace = getComputedStyle(el).whiteSpace;
+    el.style.whiteSpace = 'nowrap';
     const base = parseFloat(getComputedStyle(el).fontSize) || 20;
     const min = el.classList.contains('time') ? 12 : 13;
     let size = base;
     while (size > min && el.scrollWidth > el.clientWidth + 1) {
       size -= 1;
       el.style.fontSize = size + 'px';
+    }
+    if (el.scrollWidth > el.clientWidth + 1) {
+      el.style.whiteSpace = originalWhiteSpace === 'nowrap' ? 'normal' : originalWhiteSpace;
+      el.style.overflow = 'visible';
+    } else {
+      el.style.whiteSpace = originalWhiteSpace;
     }
   });
 }
