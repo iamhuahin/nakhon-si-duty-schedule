@@ -105,8 +105,8 @@ function deleteScheduleItem(rowNumber, expected) {
 }
 
 function validate_(x) {
-  if (!x || !/^\\d{4}-\\d{2}-\\d{2}$/.test(String(x.date || ''))) throw new Error('กรุณาระบุวันที่ให้ถูกต้อง');
-  if (x.time && !/^\\d{4}$/.test(String(x.time))) throw new Error('กรุณากรอกเวลา 4 หลัก เช่น 0830');
+  if (!x || !/^\d{4}-\d{2}-\d{2}$/.test(String(x.date || ''))) throw new Error('กรุณาระบุวันที่ให้ถูกต้อง');
+  if (x.time && !/^\d{4}$/.test(String(x.time))) throw new Error('กรุณากรอกเวลา 4 หลัก เช่น 0830');
   if (!clean_(x.mission)) throw new Error('กรุณาระบุภารกิจ');
 }
 function sameRow_(r, x) {
@@ -118,14 +118,14 @@ function sameRow_(r, x) {
 function clean_(v) { return String(v == null ? '' : v).trim(); }
 function normalizeDate_(v) {
   const s = clean_(v); if (!s) return '';
-  if (/^\\d{4}-\\d{2}-\\d{2}$/.test(s)) return s;
-  const m = s.match(/^(\\d{1,2})\\/(\\d{1,2})\\/(\\d{4})$/);
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  const m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
   if (m) { let y=Number(m[3]); if(y>2400)y-=543; return y+'-'+String(m[2]).padStart(2,'0')+'-'+String(m[1]).padStart(2,'0'); }
   return s;
 }
 function normalizeTime_(v) {
   let s=clean_(v); if (!s) return '';
-  if (/^\\d{1,2}:\\d{2}$/.test(s)) s=s.replace(':','');
-  return /^\\d{1,4}$/.test(s) ? s.padStart(4,'0') : s;
+  if (/^\d{1,2}:\d{2}$/.test(s)) s=s.replace(':','');
+  return /^\d{1,4}$/.test(s) ? s.padStart(4,'0') : s;
 }
 function today_() { return Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd'); }
