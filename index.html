@@ -139,7 +139,9 @@ th,td {
   border:1px solid var(--border);
   padding:10px 12px;
   line-height:1.45;
+  white-space:normal;
   overflow-wrap:anywhere;
+  word-break:normal;
   font-weight:700;
   vertical-align:middle;
 }
@@ -573,13 +575,12 @@ function fitTableText() {
   const targets = document.querySelectorAll('#tbody td:not(.empty), #tbody .mission, #tbody .attire');
   targets.forEach(el => {
     el.style.fontSize = '';
-    const originalWhiteSpace = getComputedStyle(el).whiteSpace;
-    const originalOverflow = el.style.overflow;
-    const isTextBlock = el.classList.contains('mission') || el.classList.contains('attire') || el.classList.contains('operators');
     const base = parseFloat(getComputedStyle(el).fontSize) || 20;
     const min = el.classList.contains('time') ? 12 : 13;
+    const originalWhiteSpace = el.style.whiteSpace;
+    const originalOverflow = el.style.overflow;
 
-    // วัดขนาดแบบบรรทัดเดียวเพื่อหาขนาดฟอนต์ที่เหมาะสม
+    // ลดขนาดฟอนต์ก่อน โดยวัดความยาวข้อความในบรรทัดเดียว
     el.style.whiteSpace = 'nowrap';
     let size = base;
     while (size > min && el.scrollWidth > el.clientWidth + 1) {
@@ -587,12 +588,20 @@ function fitTableText() {
       el.style.fontSize = size + 'px';
     }
 
-    // คืนค่าการขึ้นบรรทัดเดิมเสมอ เพื่อรักษา Enter ที่ผู้ใช้พิมพ์ไว้
-    el.style.whiteSpace = originalWhiteSpace;
-    if (isTextBlock) {
+    // คืนการขึ้นบรรทัด: ภารกิจ/แต่งกายรักษา Enter, ช่องทั่วไปให้ตัดบรรทัดได้
+    if (el.classList.contains('mission') || el.classList.contains('attire')) {
+      el.style.whiteSpace = 'pre-wrap';
+      el.style.overflow = 'visible';
+    } else if (el.classList.contains('operators')) {
+      el.style.whiteSpace = 'pre-line';
+      el.style.overflow = 'visible';
+    } else if (el.classList.contains('time')) {
+      el.style.whiteSpace = 'nowrap';
       el.style.overflow = 'visible';
     } else {
-      el.style.overflow = originalOverflow;
+      el.style.whiteSpace = 'normal';
+      el.style.overflow = 'visible';
+      el.style.overflowWrap = 'anywhere';
     }
   });
 }
