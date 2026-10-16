@@ -418,6 +418,43 @@ let items = [];
 let editing = null;
 const $ = id => document.getElementById(id);
 
+const APPS_SCRIPT_API_URL = 'https://script.google.com/macros/s/AKfycbdy1XUtoWjojOpommUSE5CNOr9XwYraN-dwKZkkZKAvBouHsamXLC1QS8CaB4G29Mkr/exec';
+
+function apiCall(action, params = {}) {
+  return new Promise((resolve, reject) => {
+    const callbackName = '__scheduleApiCallback_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+    const script = document.createElement('script');
+    const query = new URLSearchParams({ action, callback: callbackName, ...params });
+    let finished = false;
+
+    const cleanup = () => {
+      if (finished) return;
+      finished = true;
+      clearTimeout(timer);
+      delete window[callbackName];
+      script.remove();
+    };
+
+    const timer = setTimeout(() => {
+      cleanup();
+      reject(new Error('เชื่อมต่อ Apps Script ไม่สำเร็จ กรุณาตรวจสอบ URL และการ Deploy'));
+    }, 25000);
+
+    window[callbackName] = result => {
+      cleanup();
+      if (result && result.success === false) reject(new Error(result.message || 'เกิดข้อผิดพลาด'));
+      else resolve(result);
+    };
+
+    script.onerror = () => {
+      cleanup();
+      reject(new Error('เรียก API ไม่สำเร็จ กรุณาตรวจสอบการเผยแพร่ Apps Script'));
+    };
+    script.src = APPS_SCRIPT_API_URL + '?' + query.toString();
+    document.head.appendChild(script);
+  });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   $('datePicker').addEventListener('change', render);
   $('itemForm').addEventListener('submit', save);
@@ -438,8 +475,8 @@ function status(message, type = '') {
 function load() {
   status('กำลังโหลดข้อมูลจาก Google Sheets...');
 
-  google.script.run
-    .withSuccessHandler(data => {
+  apiCall('getAppData')
+    .then(data => {
       items = data.items || [];
 
       if (data.logoDataUrl) {
@@ -468,10 +505,10 @@ function load() {
 
       status('โหลดข้อมูลจาก Google Sheets เรียบร้อย', 'ok');
     })
-    .withFailureHandler(error => {
+    .catch(error => {
       status('โหลดข้อมูลไม่สำเร็จ: ' + msg(error), 'error');
-    })
-    .getAppData();
+      $('tbody').innerHTML = '<tr><td colspan="6" class="empty">โหลดข้อมูลไม่สำเร็จ กรุณากดโหลดข้อมูลใหม่</td></tr>';
+    });
 }
 
 function render() {
@@ -603,19 +640,18 @@ function save(event) {
 
   $('saveBtn').disabled = true;
 
-  google.script.run
-    .withSuccessHandler(result => {
+  apiCall('saveScheduleItem', { item: JSON.stringify(item) })
+    .then(result => {
       $('saveBtn').disabled = false;
       closeForm();
       $('datePicker').value = item.date;
-      status(result.message, 'ok');
+      status(result.message || 'บันทึกเรียบร้อย', 'ok');
       load();
     })
-    .withFailureHandler(error => {
+    .catch(error => {
       $('saveBtn').disabled = false;
       alert('บันทึกไม่สำเร็จ: ' + msg(error));
-    })
-    .saveScheduleItem(item);
+    });
 }
 
 function openManager() {
@@ -685,16 +721,18 @@ function removeItem(item) {
     item.mission + '\n\nการลบไม่สามารถย้อนกลับได้'
   )) return;
 
-  google.script.run
-    .withSuccessHandler(result => {
-      status(result.message, 'ok');
+  apiCall('deleteScheduleItem', {
+    rowNumber: String(item.rowNumber),
+    expected: JSON.stringify(snapshot(item))
+  })
+    .then(result => {
+      status(result.message || 'ลบเรียบร้อย', 'ok');
       load();
     })
-    .withFailureHandler(error => {
+    .catch(error => {
       alert('ลบไม่สำเร็จ: ' + msg(error));
       load();
-    })
-    .deleteScheduleItem(item.rowNumber, snapshot(item));
+    });
 }
 
 async function exportPng() {
