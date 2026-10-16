@@ -200,7 +200,12 @@ td.mission-cell {
   overflow-wrap:anywhere;
   line-height:1.4;
 }
- .operators {
+ .location-cell {
+  white-space:pre-line;
+  overflow-wrap:anywhere;
+  text-align:center;
+}
+.operators {
   white-space:pre-line;
   overflow-wrap:anywhere;
   text-align:center;
@@ -563,7 +568,7 @@ function render() {
 
     tr.append(missionCell);
     cell(tr, x.chair || '-');
-    cell(tr, x.location || '-');
+    cell(tr, x.location || '-', 'location-cell');
     cell(tr, x.unit || '-');
     cell(tr, x.operators || '-', 'operators');
     tbody.append(tr);
@@ -598,7 +603,7 @@ function fitTableText() {
       el.style.fontSize = size + 'px';
     }
     // ถ้ายังยาว ให้ข้อความขึ้นบรรทัดใหม่และเพิ่มความสูงของแถว
-    el.style.whiteSpace = el.classList.contains('operators') ? 'pre-line' : 'normal';
+    el.style.whiteSpace = (el.classList.contains('operators') || el.classList.contains('location-cell')) ? 'pre-line' : 'normal';
     el.style.overflowWrap = 'anywhere';
   });
 }
