@@ -24,7 +24,15 @@ function getAppData() {
     unit: r[5] || '', operators: r[6] || '', attire: r[7] || ''
   })).filter(x => x.date || x.mission || x.time);
   const dates = [...new Set(items.map(x => x.date).filter(Boolean))].sort();
-  return {items, dates, latestDate: dates.length ? dates[dates.length - 1] : today_(), logoUrl: LOGO_URL};
+  let logoDataUrl = '';
+  try {
+    const blob = DriveApp.getFileById('1RYqjqw5bW-nqpgvcMn3Cdhly5QTwnJyK').getBlob();
+    const mime = blob.getContentType() || 'image/png';
+    logoDataUrl = 'data:' + mime + ';base64,' + Utilities.base64Encode(blob.getBytes());
+  } catch (error) {
+    logoDataUrl = '';
+  }
+  return {items, dates, latestDate: dates.length ? dates[dates.length - 1] : today_(), logoDataUrl};
 }
 
 function saveScheduleItem(item) {
