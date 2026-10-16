@@ -202,11 +202,22 @@ textarea#attire { min-height:70px; }
   line-height:1.4;
 }
  .location-cell {
+  font-size:21px;
+  line-height:1.45;
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+  text-align:center;
+}
+.unit-cell {
+  font-size:21px;
+  line-height:1.45;
   white-space:pre-wrap;
   overflow-wrap:anywhere;
   text-align:center;
 }
 .operators {
+  font-size:20px;
+  line-height:1.45;
   white-space:pre-line;
   overflow-wrap:anywhere;
   text-align:center;
@@ -570,7 +581,7 @@ function render() {
     tr.append(missionCell);
     cell(tr, x.chair || '-');
     cell(tr, x.location || '-', 'location-cell');
-    cell(tr, x.unit || '-');
+    cell(tr, x.unit || '-', 'unit-cell');
     cell(tr, x.operators || '-', 'operators');
     tbody.append(tr);
   });
@@ -578,7 +589,6 @@ function render() {
 }
 
 function fitTableText() {
-  // ภารกิจและการแต่งกายใช้ขนาดตัวอักษรที่อ่านง่าย และขึ้นบรรทัดตามความกว้างคอลัมน์
   document.querySelectorAll('#tbody .mission').forEach(el => {
     el.style.fontSize = '25px';
     el.style.whiteSpace = 'pre-wrap';
@@ -590,21 +600,23 @@ function fitTableText() {
     el.style.overflow = 'visible';
   });
 
-  // ปรับขนาดอัตโนมัติเฉพาะช่องข้อมูลสั้น เพื่อช่วยให้พอดีกับคอลัมน์
-  const targets = document.querySelectorAll('#tbody td:not(.empty):not(.mission-cell):not(.time)');
-  targets.forEach(el => {
-    el.style.fontSize = '';
-    el.style.whiteSpace = 'nowrap';
+  // รักษาขนาดตัวอักษรให้อ่านง่าย และรักษาบรรทัดที่ผู้ใช้ป้อนด้วย Alt+Enter
+  document.querySelectorAll('#tbody .location-cell').forEach(el => {
+    el.style.fontSize = '21px';
+    el.style.whiteSpace = 'pre-wrap';
     el.style.overflow = 'visible';
-    const base = parseFloat(getComputedStyle(el).fontSize) || 20;
-    const min = 13;
-    let size = base;
-    while (size > min && el.scrollWidth > el.clientWidth + 1) {
-      size -= 1;
-      el.style.fontSize = size + 'px';
-    }
-    // ถ้ายังยาว ให้ข้อความขึ้นบรรทัดใหม่และเพิ่มความสูงของแถว
-    el.style.whiteSpace = el.classList.contains('operators') ? 'pre-line' : (el.classList.contains('location-cell') ? 'pre-wrap' : 'normal');
+    el.style.overflowWrap = 'anywhere';
+  });
+  document.querySelectorAll('#tbody .unit-cell').forEach(el => {
+    el.style.fontSize = '21px';
+    el.style.whiteSpace = 'pre-wrap';
+    el.style.overflow = 'visible';
+    el.style.overflowWrap = 'anywhere';
+  });
+  document.querySelectorAll('#tbody .operators').forEach(el => {
+    el.style.fontSize = '20px';
+    el.style.whiteSpace = 'pre-line';
+    el.style.overflow = 'visible';
     el.style.overflowWrap = 'anywhere';
   });
 }
