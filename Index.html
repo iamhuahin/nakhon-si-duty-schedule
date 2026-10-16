@@ -202,7 +202,7 @@ textarea#attire { min-height:70px; }
   line-height:1.4;
 }
  .location-cell {
-  white-space:pre-line;
+  white-space:pre-wrap;
   overflow-wrap:anywhere;
   text-align:center;
 }
@@ -393,7 +393,7 @@ textarea { min-height:70px;resize:vertical; }
           <textarea id="chair"></textarea>
         </div>
         <div class="field">
-          <label for="location">สถานที่</label>
+          <label for="location">สถานที่ (กด Alt + Enter เพื่อขึ้นบรรทัดใหม่)</label>
           <textarea id="location"></textarea>
         </div>
         <div class="field">
@@ -661,9 +661,9 @@ function save(event) {
     date:$('date').value,
     time,
     mission:$('mission').value.trim(),
-    attire:$('attire').value.trim(),
+    attire:$('attire').value.replace(/\r\n?/g, '\n').trim(),
     chair:$('chair').value.trim(),
-    location:$('location').value.trim(),
+    location:$('location').value.replace(/\r\n?/g, '\n').trim(),
     unit:$('unit').value.trim(),
     operators:$('operators').value.trim()
   };
